@@ -1,14 +1,14 @@
 'use client'
-import {DragHandleIcon, toast, useTranslation } from '@payloadcms/ui'
-
+import { DragHandleIcon, toast } from '@payloadcms/ui'
 import { DraggableSortable } from '@payloadcms/ui/elements/DraggableSortable'
 import { DraggableSortableItem } from '@payloadcms/ui/elements/DraggableSortable/DraggableSortableItem'
 import { Radio } from '@payloadcms/ui/fields/RadioGroup/Radio'
 import type { PaginatedDocs } from 'payload'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Dialog } from '../Dialog'
-import './OrderDialog.css' // Import the new CSS file
+import './OrderDialog.css'
 import { ToastContainer } from '@payloadcms/ui/providers/ToastContainer'
+import { translations } from '../../translation'
 
 interface Doc extends Record<string, unknown> {
   id: number | string
@@ -17,20 +17,29 @@ interface Doc extends Record<string, unknown> {
   edited_from?: number
 }
 
-const DragDrop = () => {
-  const { t } = useTranslation() // Use the correct namespace
-  type translateType = Parameters<typeof t>[0] // for type checking
+const getTranslation = (key: string, currentLang: string = 'en') => {
+  const langData = translations[currentLang as keyof typeof translations] || translations['en']
+  const keys = key.split('.')
+  let translation: any = langData
 
+  for (let i = 0; i < keys.length; i++) {
+    translation = translation[keys[i] as keyof typeof translation]
+
+    if (!translation) {
+      return key
+    }
+  }
+
+  return translation
+}
+
+//DragDrop component
+const DragDrop = ({ currentLang, t }: { currentLang: string, t: (key: string) => string }) => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-
   const url = window.location.href
-
   let result = url.match(/\/collections\/([^?]+)/)
-
   const slug = result?.[1]
-
   const baseUrl = new URL(url).origin
-
   const limit = 20
 
   const [data, setData] = useState<{
@@ -71,7 +80,6 @@ const DragDrop = () => {
     if (slug) initData()
   }, [sortOrder])
 
-
   const moveRow = (moveFromIndex: number, moveToIndex: number) => {
     setData(prev => {
       const prevDocs = [...prev.docs]
@@ -98,14 +106,11 @@ const DragDrop = () => {
       .filter(doc => typeof doc.edited_to === 'number' && doc.edited_to !== doc.order_number)
       .map(doc => ({
         id: doc.id,
-        order_number: doc.edited_to, // Update order_number by edited_to
+        order_number: doc.edited_to,
       }))
 
     try {
-
-      //call the api to update the order_number
       const updateRequests = modifiedDocsData.map(async doc => {
-
         const req = await fetch(`/api/${slug}/${doc.id}`, {
           method: 'PATCH',
           credentials: 'include',
@@ -117,16 +122,13 @@ const DragDrop = () => {
           }),
         })
 
-
         const resp = await req.json()
         return resp
       })
 
-      // Await all update requests
       const results = await Promise.all(updateRequests)
 
-      // Handle success actions here
-      setData((prev) => ({ ...prev, isLoading: true }))
+      setData(prev => ({ ...prev, isLoading: true }))
       await initData()
       toast.success('success', { position: 'bottom-center' })
     } catch (err) {
@@ -163,7 +165,7 @@ const DragDrop = () => {
           isSelected={sortOrder === 'asc'}
           onChange={() => handleSortOrderChange('asc')}
           option={{
-            label: 'Asc', // Use the correct namespace
+            label: t('asc'),
             value: 'asc',
           }}
           path="asc"
@@ -173,7 +175,7 @@ const DragDrop = () => {
           isSelected={sortOrder === 'desc'}
           onChange={() => handleSortOrderChange('desc')}
           option={{
-            label: 'Desc', // Use the correct namespace
+            label: t('desc'),
             value: 'desc',
           }}
           path="desc"
@@ -189,7 +191,7 @@ const DragDrop = () => {
             {props => {
               return (
                 <div
-                  style={{ transform: props.transform }} // `transform` comes from `props`
+                  style={{ transform: props.transform }}
                   ref={props.setNodeRef}
                   className="order-item"
                 >
@@ -214,7 +216,7 @@ const DragDrop = () => {
         ))}
       </DraggableSortable>
       <div className="order-buttons">
-        {data.isLoading ? 'Loading...' : `Loaded ${data.docs.length}/${data.totalDocs}`}
+        {data.isLoading ? `${t('loading')}` : `${t('loaded')} ${data.docs.length}/${data.totalDocs}`}
         {hasSave && <button onClick={() => save()}>{'Save'}</button>}
         {data.hasNextPage && <button onClick={loadMore}>{'Load More'}</button>}
       </div>
@@ -222,17 +224,24 @@ const DragDrop = () => {
   )
 }
 
+
+// This component is used in the extendCollectionConfig function in the extendCollectionsConfig.ts file
 export const CollectionDocsOrder = () => {
-  const { t } = useTranslation() // Use the correct namespace
-  type translateType = Parameters<typeof t>[0] // for type checking
+  const [currentLang, setCurrentLang] = useState('en')
+
+  useEffect(() => {
+    const lang = document.documentElement.lang || 'en'
+    setCurrentLang(lang)
+  }, [])
+
+  const t = (key: string) => getTranslation(`collectionsDocsOrder.${key}`, currentLang)
 
   return (
     <div>
-      <Dialog trigger={<button style={{ margin: 0, cursor: 'pointer' }}> 
-        {/* {t('collectionsDocsOrder:orderDocs' as translateType)} */}
-        {'Order Docs'}
-        </button>}>
-        <DragDrop />
+      <Dialog trigger={<button style={{ margin: 0, cursor: 'pointer' }}>
+        {t('orderDocs')}
+      </button>}>
+        <DragDrop currentLang={currentLang} t={t} />
         <ToastContainer />
       </Dialog>
     </div>
