@@ -16,9 +16,9 @@ export const docsOrder =
                 config.collections = extendCollectionsConfig(config.collections, pluginOptions);
             }
 
+
             config.i18n = {
                 ...config.i18n,
-                translations: translations,
             };
 
             return config;
