@@ -21,3 +21,5 @@
     "src/**/*",
   ],
 }
+
+// "moduleResolution": "Bundler",
