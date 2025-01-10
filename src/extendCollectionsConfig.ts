@@ -14,7 +14,13 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
         ...(collection.admin?.components ?? {}),
         beforeListTable: [
           ...(collection.admin?.components?.beforeListTable ?? []),
-          CollectionDocsOrder, // Add the CollectionDocsOrder (Button Order Docs) component to the beforeListTable array
+          {
+            //@ts-ignore
+            path: '@/components/CollectionDocsOrder/CollectionDocsOrder#CollectionDocsOrder',
+            clientProps: {
+              displayField: 'title',
+            },
+          }, // Add the CollectionDocsOrder (Button Order Docs) component to the beforeListTable array
         ],
       },
     },
