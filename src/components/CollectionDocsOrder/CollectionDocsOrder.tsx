@@ -1,13 +1,13 @@
 'use client'
 import { DragHandleIcon, toast } from '@payloadcms/ui'
-import { DraggableSortable } from '@payloadcms/ui/dist/elements/DraggableSortable'
-import { DraggableSortableItem } from '@payloadcms/ui/dist/elements/DraggableSortable/DraggableSortableItem'
-import { Radio } from '@payloadcms/ui/dist/fields/RadioGroup/Radio'
+import { DraggableSortable } from '@payloadcms/ui/elements/DraggableSortable'
+import { DraggableSortableItem } from '@payloadcms/ui/elements/DraggableSortable/DraggableSortableItem'
+import { Radio } from '@payloadcms/ui/fields/RadioGroup/Radio'
 import type { PaginatedDocs } from 'payload'
 import React, { useEffect, useState } from 'react'
 import { Dialog } from '../Dialog'
 import './OrderDialog.css'
-import { ToastContainer } from '@payloadcms/ui/dist/providers/ToastContainer'
+import { ToastContainer } from '@payloadcms/ui/providers/ToastContainer'
 import { translations } from '../../translation'
 
 interface Doc extends Record<string, unknown> {
