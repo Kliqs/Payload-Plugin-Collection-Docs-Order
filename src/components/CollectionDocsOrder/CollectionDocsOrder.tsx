@@ -6,7 +6,7 @@ import { Radio } from '@payloadcms/ui/fields/RadioGroup/Radio'
 import type { PaginatedDocs } from 'payload'
 import React, { useEffect, useState } from 'react'
 import { Dialog } from '../Dialog'
-import './OrderDialog.css'
+// import './OrderDialog.css'
 import { ToastContainer } from '@payloadcms/ui/providers/ToastContainer'
 import { translations } from '../../translation'
 

@@ -1,5 +1,4 @@
 import { CollectionConfig } from 'payload'; // For payload v3
-import { CollectionDocsOrder } from './components/CollectionDocsOrder';
 import { DocsOrderPluginOptions } from './types.js';
 import { generateOrderNumber } from './hooks/generateOrderNumber';
 
@@ -16,7 +15,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
           ...(collection.admin?.components?.beforeListTable ?? []),
           {
             //@ts-ignore
-            path: '@/components/CollectionDocsOrder/CollectionDocsOrder#CollectionDocsOrder',
+            path: 'vs-payload-plugin-collection-docs-order/CollectionDocsOrder/CollectionDocsOrder#CollectionDocsOrder',
             clientProps: {
               displayField: 'title',
             },
