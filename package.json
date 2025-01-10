@@ -4,6 +4,12 @@
   "description": "A Payload plugin that allows dragging to order your collections in the Payload admin panel.",
   "author": "dev@payloadcms.com",
   "license": "MIT",
+  "maintainers": [
+    {
+      "name": "dev",
+      "email": "dev@extravigin.ch"
+    }
+  ],
   "type": "module",
   "scripts": {
     "build": "pnpm build:types && pnpm build:swc",
@@ -14,14 +20,13 @@
     "lint:fix": "eslint . --fix",
     "test": "echo \"No tests available.\""
   },
-  "main": "./src/index.ts",
+  "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "files": [
     "dist"
   ],
   "dependencies": {
     "@payloadcms/ui": "^3.4.0",
-    "payload": "3.4.0",
     "@radix-ui/react-dialog": "^1.1.4",
     "add": "^2.0.6",
     "clsx": "^2.1.1",
@@ -39,9 +44,11 @@
     "@types/react-dom": "18.0.0",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
+    "payload": "3.4.0",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
+    "payload": "3.4.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
