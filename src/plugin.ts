@@ -9,6 +9,7 @@ type DocsOrderPluginOption = (pluginOptions: DocsOrderPluginOptions) => Plugin
 export const docsOrder =
     (pluginOptions: DocsOrderPluginOptions): Plugin =>
         (config) => {
+            // console.log("hai test config",config);
             if (pluginOptions.enabled === false) {
                 return config;
             }

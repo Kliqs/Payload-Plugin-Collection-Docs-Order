@@ -19,7 +19,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
             clientProps: {
               displayField: 'title',
             },
-          }, // Add the CollectionDocsOrder (Button Order Docs) component to the beforeListTable array
+          }, 
         ],
       },
     },
