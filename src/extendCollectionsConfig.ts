@@ -15,7 +15,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
           ...(collection.admin?.components?.beforeListTable ?? []),
           {
             //@ts-ignore
-            path: 'vs-payload-plugin-collection-docs-order/CollectionDocsOrder/CollectionDocsOrder#CollectionDocsOrder',
+            path: 'vs-payload-plugin-collection-docs-order/CollectionDocsOrder',
             clientProps: {
               displayField: 'title',
             },

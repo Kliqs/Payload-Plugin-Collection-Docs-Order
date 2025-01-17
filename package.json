@@ -1,6 +1,6 @@
 {
   "name": "vs-payload-plugin-collection-docs-order",
-  "version": "1.1.4",
+  "version": "1.1.9",
   "description": "A Payload plugin that allows dragging to order your collections in the Payload admin panel.",
   "author": "dev@payloadcms.com",
   "license": "MIT",
@@ -12,27 +12,34 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "pnpm build:types && pnpm build:swc",
-    "build:swc": "pnpm exec swc ./src -d ./dist --config-file .swcrc --strip-leading-paths",
-    "build:types": "tsc --emitDeclarationOnly --outDir dist",
+    "build": "pnpm copyfiles && pnpm build:types && pnpm build:swc",
+    "build:swc": "swc ./src -d ./dist --config-file .swcrc --strip-leading-paths",
+    "build:types": "tsc --outDir dist --rootDir ./src",
     "clean": "rimraf {dist,*.tsbuildinfo}",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test": "echo \"No tests available.\""
+    "copyfiles": "copyfiles -u 1 \"src/**/*.{html,css,scss,ttf,woff,woff2,eot,svg,jpg,png,json}\" dist/",
+    "dev": "payload run ./dev/server.ts",
+    "dev:generate-importmap": "pnpm dev:payload generate:importmap",
+    "dev:generate-types": "pnpm dev:payload generate:types",
+    "dev:payload": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
+    "prepublishOnly": "pnpm clean && pnpm build",
+    "test": "jest"
   },
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "main": "./dist/index.ts",
+  "types": "./dist/index.ts",
   "files": [
-    "dist"
+    "dist",
+    "dist/components"
   ],
   "dependencies": {
-    "@payloadcms/ui": "^3.4.0",
+    "@payloadcms/ui": "^3.16.0",
     "@radix-ui/react-dialog": "^1.1.4",
     "add": "^2.0.6",
     "clsx": "^2.1.1",
     "escape-html": "^1.0.3",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-toastify": "^11.0.2"
   },
   "devDependencies": {
@@ -40,21 +47,42 @@
     "@swc/cli": "^0.5.2",
     "@swc/core": "^1.10.1",
     "@types/escape-html": "^1.0.4",
-    "@types/react": "18.0.0",
-    "@types/react-dom": "18.0.0",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.1",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
-    "payload": "3.4.0",
+    "payload": "^3.16.0",
+    "rimraf": "^6.0.1",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
-    "payload": "3.4.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "payload": "^3.16.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "engines": {
+    "node": "^18.20.2 || >=20.9.0"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
+    "exports": {
+      ".": {
+        "import": "./dist/index.js",
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./client": {
+        "import": "./dist/exports/client.js",
+        "types": "./dist/exports/client.d.ts",
+        "default": "./dist/exports/client.js"
+      },
+      "./rsc": {
+        "import": "./dist/exports/rsc.js",
+        "types": "./dist/exports/rsc.d.ts",
+        "default": "./dist/exports/rsc.js"
+      }
+    },
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
   "exports": {
     ".": {
@@ -62,20 +90,15 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./types": {
-      "import": "./dist/exports/types.js",
-      "types": "./dist/exports/types.d.ts",
-      "default": "./dist/exports/types.js"
-    },
     "./client": {
       "import": "./dist/exports/client.js",
       "types": "./dist/exports/client.d.ts",
       "default": "./dist/exports/client.js"
     },
-    "./components/CollectionDocsOrder": {
-      "import": "./dist/exports/components/CollectionDocsOrder.js",
-      "types": "./dist/exports/components/CollectionDocsOrder.d.ts",
-      "default": "./dist/exports/components/CollectionDocsOrder.js"
+    "./rsc": {
+      "import": "./dist/exports/rsc.js",
+      "types": "./dist/exports/rsc.d.ts",
+      "default": "./dist/exports/rsc.js"
     }
   },
   "repository": {
