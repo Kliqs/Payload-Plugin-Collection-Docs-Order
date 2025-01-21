@@ -34,7 +34,7 @@ const getTranslation = (key: string, currentLang: string = 'en') => {
 }
 
 //DragDrop component
-const DragDrop = ({ currentLang, t }: { currentLang: string, t: (key: string) => string }) => {
+const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (key: string) => string; displayField: string }) => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const url = window.location.href
   let result = url.match(/\/collections\/([^?]+)/)
@@ -65,15 +65,17 @@ const DragDrop = ({ currentLang, t }: { currentLang: string, t: (key: string) =>
   const initData = () => {
     return fetch(`/api/${slug}?${sort}&limit=${limit}`)
       .then(res => res.json())
-      .then(({ docs, hasNextPage, totalDocs }: PaginatedDocs<Doc>) =>
+      .then(response => {
+        console.log("Raw API response:", response); // Check the actual API response
+        const { docs, hasNextPage, totalDocs } = response;
         setData({
           hasNextPage,
           isLoading: false,
           docs,
           loadedPages: 1,
           totalDocs,
-        }),
-      )
+        });
+      });
   }
 
   useEffect(() => {
@@ -207,7 +209,8 @@ const DragDrop = ({ currentLang, t }: { currentLang: string, t: (key: string) =>
                     {doc.order_number}
                     {doc.edited_to && doc.edited_to !== doc.order_number && ` - ${doc.edited_to}`}
                     {' - '}
-                    {doc.title as string}
+                    {(doc[displayField] as string) ?? doc.slug} 
+                    
                   </a>
                 </div>
               )
@@ -226,9 +229,8 @@ const DragDrop = ({ currentLang, t }: { currentLang: string, t: (key: string) =>
 
 
 // This component is used in the extendCollectionConfig function in the extendCollectionsConfig.ts file
-export const CollectionDocsOrder = () => {
+export const CollectionDocsOrder = ({displayField}: {displayField: string}) => {
   const [currentLang, setCurrentLang] = useState('en')
-
   useEffect(() => {
     const lang = document.documentElement.lang || 'en'
     setCurrentLang(lang)
@@ -241,7 +243,7 @@ export const CollectionDocsOrder = () => {
       <Dialog trigger={<button style={{ margin: 0, cursor: 'pointer' }}>
         {t('orderDocs')}
       </button>}>
-        <DragDrop currentLang={currentLang} t={t} />
+        <DragDrop currentLang={currentLang} t={t} displayField={displayField}/>
         <ToastContainer />
       </Dialog>
     </div>

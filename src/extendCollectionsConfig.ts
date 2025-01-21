@@ -17,7 +17,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
             //@ts-ignore
             path: 'vs-payload-plugin-collection-docs-order/client#CollectionDocsOrder',
             clientProps: {
-              displayField: 'title',
+              displayField: collection.admin?.useAsTitle,
             },
           }, 
         ],
