@@ -15,7 +15,13 @@ This plugin integrates seamlessly with Payload CMS, providing a drag-and-drop in
 
 ### How to install the plugin
 
-To install the drag-to-order plugin, simply add it to the `plugins` array in your `payload.config.ts`.
+To install the **drag-to-order** plugin, run the following command:
+
+```sh
+npm i vs-payload-plugin-collection-docs-order
+```
+
+ Then simply add it to the `plugins` array in your `payload.config.ts`.
 
 ```ts
 import { docsOrder } from 'vs-payload-plugin-collection-docs-order';
