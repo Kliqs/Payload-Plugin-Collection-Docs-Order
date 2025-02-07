@@ -63,7 +63,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
   const sort = `sort=${sortOrder === 'desc' ? '-' : ''}order_number`
 
   const initData = () => {
-    return fetch(`/api/${slug}?${sort}&limit=${limit}`)
+    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLang}`)
       .then(res => res.json())
       .then(response => {
         console.log("Raw API response:", response); // Check the actual API response
@@ -141,7 +141,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
 
   const loadMore = () => {
     setData(prev => ({ ...prev, isLoading: true }))
-    return fetch(`/api/${slug}?${sort}&limit=${limit}&page=${data.loadedPages + 1}`)
+    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLang}&page=${data.loadedPages + 1}`)
       .then(res => res.json())
       .then(({ docs, hasNextPage }: PaginatedDocs<Doc>) =>
         setData(prev => ({

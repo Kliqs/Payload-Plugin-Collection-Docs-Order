@@ -1,6 +1,6 @@
 {
   "name": "@extravirgin/payload-plugin-collection-docs-order",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Payload plugin that allows dragging to order your collections in the Payload admin panel.",
   "author": "dev@payloadcms.com",
   "license": "MIT",
