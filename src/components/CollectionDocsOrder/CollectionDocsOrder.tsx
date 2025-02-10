@@ -9,6 +9,7 @@ import { Dialog } from '../Dialog'
 import './OrderDialog.css'
 import { ToastContainer } from '@payloadcms/ui/providers/ToastContainer'
 import { translations } from '../../translation'
+import { getPayload } from 'payload'
 
 interface Doc extends Record<string, unknown> {
   id: number | string
@@ -18,7 +19,7 @@ interface Doc extends Record<string, unknown> {
 }
 
 const getTranslation = (key: string, currentLang: string = 'en') => {
-  const langData = translations[currentLang as keyof typeof translations] || translations['en']
+  const langData = translations?.[currentLang as keyof typeof translations] ?? translations?.['en'] ?? {}
   const keys = key.split('.')
   let translation: any = langData
 
@@ -38,7 +39,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const url = window.location.href
   let result = url.match(/\/collections\/([^?]+)/)
-  const slug = result?.[1]
+  const slug = result && result[1] ? result[1] : ''
   const baseUrl = new URL(url).origin
   const limit = 20
 
@@ -62,12 +63,32 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
 
   const sort = `sort=${sortOrder === 'desc' ? '-' : ''}order_number`
 
-  const initData = () => {
-    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLang}`)
+  const getCurrentLocale = async () => {
+    try {
+      const res = await fetch(`/api/payload-preferences/locale`);
+      if (!res.ok) throw new Error('Failed to fetch current locale');
+      const locale = await res.json();
+      return locale;
+    } catch (error) {
+      console.error("Error fetching current locale:", error);
+      return null;
+    }
+  };
+  
+  const initData = async () => {
+    const currentLocale = await getCurrentLocale();
+    if (!currentLocale) {
+      console.error("No current locale.");
+      return;
+    }
+
+    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLocale.value}`)
       .then(res => res.json())
       .then(response => {
-        console.log("Raw API response:", response); // Check the actual API response
-        const { docs, hasNextPage, totalDocs } = response;
+        // console.log("Raw API response:", response); // Check the actual API response
+        const docs = response?.docs ?? [];
+        const hasNextPage = response?.hasNextPage ?? false;
+        const totalDocs = response?.totalDocs ?? 0;
         setData({
           hasNextPage,
           isLoading: false,
@@ -94,7 +115,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
           if (prevDocs[index].id !== doc.id) {
             return {
               ...doc,
-              edited_to: prevDocs[index].edited_to ?? prevDocs[index].order_number,
+              edited_to: prevDocs[index]?.edited_to ?? prevDocs[index]?.order_number ?? doc.order_number,
             }
           }
           return doc
@@ -109,7 +130,12 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
       .map(doc => ({
         id: doc.id,
         order_number: doc.edited_to,
+        pageName: doc.pageName ?? '', // Ensure pageName is included
       }))
+      if (modifiedDocsData.length === 0) {
+        toast.info('No changes to save', { position: 'bottom-center' });
+        return;
+      }
 
     try {
       const updateRequests = modifiedDocsData.map(async doc => {
@@ -121,6 +147,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
           },
           body: JSON.stringify({
             order_number: doc.order_number,
+            pageName: doc.pageName ?? '',
           }),
         })
 
@@ -131,17 +158,23 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
       const results = await Promise.all(updateRequests)
 
       setData(prev => ({ ...prev, isLoading: true }))
-      await initData()
       toast.success('success', { position: 'bottom-center' })
+      await initData()
     } catch (err) {
       console.log('Error updating documents:', err)
       toast.error('error', { position: 'bottom-center' })
     }
   }
 
-  const loadMore = () => {
+  const loadMore = async () => {
+    const currentLocale = await getCurrentLocale();
+    if (!currentLocale) {
+      console.error("No current locale.");
+      return;
+    }
+
     setData(prev => ({ ...prev, isLoading: true }))
-    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLang}&page=${data.loadedPages + 1}`)
+    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLocale.value}&page=${data.loadedPages + 1}`)
       .then(res => res.json())
       .then(({ docs, hasNextPage }: PaginatedDocs<Doc>) =>
         setData(prev => ({
@@ -209,8 +242,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
                     {doc.order_number}
                     {doc.edited_to && doc.edited_to !== doc.order_number && ` - ${doc.edited_to}`}
                     {' - '}
-                    {(doc[displayField] as string) ?? doc.slug} 
-                    
+                    {(doc?.[displayField] as string) ?? doc?.slug ?? 'Unknown'}
                   </a>
                 </div>
               )
@@ -232,7 +264,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
 export const CollectionDocsOrder = ({displayField}: {displayField: string}) => {
   const [currentLang, setCurrentLang] = useState('en')
   useEffect(() => {
-    const lang = document.documentElement.lang || 'en'
+    const lang = document.documentElement?.lang?.trim() || 'en'
     setCurrentLang(lang)
   }, [])
 

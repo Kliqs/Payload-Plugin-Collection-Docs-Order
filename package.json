@@ -1,6 +1,6 @@
 {
   "name": "@extravirgin/payload-plugin-collection-docs-order",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Payload plugin that allows dragging to order your collections in the Payload admin panel.",
   "author": "dev@payloadcms.com",
   "license": "MIT",
@@ -33,7 +33,7 @@
     "dist/components"
   ],
   "dependencies": {
-    "@payloadcms/ui": "^3.16.0",
+    "@payloadcms/ui": "^3.20.0",
     "@radix-ui/react-dialog": "^1.1.4",
     "add": "^2.0.6",
     "clsx": "^2.1.1",
@@ -51,12 +51,12 @@
     "@types/react-dom": "19.0.1",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
-    "payload": "^3.16.0",
+    "payload": "^3.20.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
-    "payload": "^3.16.0",
+    "payload": "^3.20.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

@@ -18,6 +18,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
             path: '@extravirgin/payload-plugin-collection-docs-order/client#CollectionDocsOrder',
             clientProps: {
               displayField: collection.admin?.useAsTitle,
+              
             },
           }, 
         ],
