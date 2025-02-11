@@ -191,6 +191,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
     setSortOrder(order)
     setData(prev => ({ ...prev, isLoading: true }))
   }
+  // const sortedDocs = data.docs.sort((a, b) => a.order_number - b.order_number);
 
   return (
     <div className="collection-docs-order-content">
@@ -242,7 +243,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
                     {doc.order_number}
                     {doc.edited_to && doc.edited_to !== doc.order_number && ` - ${doc.edited_to}`}
                     {' - '}
-                    {(doc?.[displayField] as string) ?? doc?.slug ?? 'Unknown'}
+                    {(doc?.[displayField] as string) ?? doc?.slug ?? 'Undefined'}
                   </a>
                 </div>
               )

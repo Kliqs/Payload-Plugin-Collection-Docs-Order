@@ -18,9 +18,9 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
             path: '@extravirgin/payload-plugin-collection-docs-order/client#CollectionDocsOrder',
             clientProps: {
               displayField: collection.admin?.useAsTitle,
-              
+
             },
-          }, 
+          },
         ],
       },
     },
@@ -34,7 +34,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
         index: true,
         name: 'order_number',
         type: 'number',
-        label:{
+        label: {
           en: 'Order Number',
           de: 'Reihenfolge Nummer',
         }
@@ -42,9 +42,19 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
     ],
     hooks: {
       ...(collection.hooks ?? {}),
-      beforeValidate: [...(collection.hooks?.beforeValidate ?? []), 
-      generateOrderNumber // automatically increment the order_number field
-    ],
+      beforeValidate: [
+        ...(collection.hooks?.beforeValidate ?? []),
+        generateOrderNumber, // Automatically set order_number before validation
+      ],
+      beforeRead: [
+        ...(collection.hooks?.beforeRead ?? []),
+        async ({ doc }) => {
+          if (!doc.order_number) {
+            doc.order_number = doc.id; // Assign ID if order_number is null
+          }
+          return doc;
+        },
+      ],
     },
   } as CollectionConfig;
 };
