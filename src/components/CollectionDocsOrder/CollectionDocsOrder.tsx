@@ -125,12 +125,17 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
   }
 
   const save = async () => {
+    const currentLocale = await getCurrentLocale();
+    if (!currentLocale) {
+      console.error("No current locale.");
+      return;
+    }
+    
     const modifiedDocsData = data.docs
       .filter(doc => typeof doc.edited_to === 'number' && doc.edited_to !== doc.order_number)
       .map(doc => ({
         id: doc.id,
         order_number: doc.edited_to,
-        pageName: doc.pageName ?? '', // Ensure pageName is included
       }))
       if (modifiedDocsData.length === 0) {
         toast.info('No changes to save', { position: 'bottom-center' });
@@ -139,7 +144,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
 
     try {
       const updateRequests = modifiedDocsData.map(async doc => {
-        const req = await fetch(`/api/${slug}/${doc.id}`, {
+        const req = await fetch(`/api/${slug}/${doc.id}?locale=${currentLocale.value}`, {
           method: 'PATCH',
           credentials: 'include',
           headers: {
@@ -147,7 +152,6 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
           },
           body: JSON.stringify({
             order_number: doc.order_number,
-            pageName: doc.pageName ?? '',
           }),
         })
 
