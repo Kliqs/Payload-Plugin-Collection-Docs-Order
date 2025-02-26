@@ -36,7 +36,7 @@ const getTranslation = (key: string, currentLang: string = 'en') => {
 
 //DragDrop component
 const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (key: string) => string; displayField: string }) => {
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const url = window.location.href
   let result = url.match(/\/collections\/([^?]+)/)
   const slug = result && result[1] ? result[1] : ''
