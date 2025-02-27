@@ -4,6 +4,8 @@ import { generateOrderNumber } from './hooks/generateOrderNumber';
 
 const extendCollectionConfig = (collection: CollectionConfig) => {
 
+  const defaultSortCollection = getDefaultSortCollection(collection);
+
   return {
     ...collection,
     admin: {
@@ -18,7 +20,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
             path: '@extravirgin/payload-plugin-collection-docs-order/client#CollectionDocsOrder',
             clientProps: {
               displayField: collection.admin?.useAsTitle,
-
+              defaultSort: defaultSortCollection, //asc / desc
             },
           },
         ],
@@ -77,3 +79,39 @@ export const extendCollectionsConfig = (
     return extendCollectionConfig(collectionConfig); // Ensure you use the correct function name
   });
 };
+
+
+/**
+ * Determines the default sort direction based on collection configuration
+ * @param collection - The collection configuration object
+ * @returns "asc" or "desc" based on the defaultSort value
+ */
+function getDefaultSortCollection(collection: CollectionConfig): "asc" | "desc" {
+  
+  const DEFAULT_SORT = "asc";
+
+  if (!collection?.defaultSort) {
+    return DEFAULT_SORT;
+  }
+
+  // Normalize sort value to string and remove all whitespace
+  const getSortValue = (input: unknown): string => {
+    if (typeof input === "string") {
+      return input.replace(/\s+/g, "");
+    }
+    if (Array.isArray(input) && input.length > 0) {
+      return String(input[0]).replace(/\s+/g, "");
+    }
+    return "";
+  };
+
+  const sortValue = getSortValue(collection.defaultSort);
+
+  // Map sort values to directions
+  const sortMap: Record<string, "asc" | "desc"> = {
+    "order_number": "asc",
+    "-order_number": "desc",
+  };
+
+  return sortMap[sortValue] || DEFAULT_SORT;
+}

@@ -1,5 +1,5 @@
 'use client'
-import { DragHandleIcon, toast } from '@payloadcms/ui'
+import { DragHandleIcon, toast, useTranslation, useLocale } from '@payloadcms/ui'
 import { DraggableSortable } from '@payloadcms/ui/elements/DraggableSortable'
 import { DraggableSortableItem } from '@payloadcms/ui/elements/DraggableSortable/DraggableSortableItem'
 import { Radio } from '@payloadcms/ui/fields/RadioGroup/Radio'
@@ -9,7 +9,7 @@ import { Dialog } from '../Dialog'
 import './OrderDialog.css'
 import { ToastContainer } from '@payloadcms/ui/providers/ToastContainer'
 import { translations } from '../../translation'
-import { getPayload } from 'payload'
+
 
 interface Doc extends Record<string, unknown> {
   id: number | string
@@ -35,8 +35,11 @@ const getTranslation = (key: string, currentLang: string = 'en') => {
 }
 
 //DragDrop component
-const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (key: string) => string; displayField: string }) => {
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+const DragDrop = ({ t, displayField, defaultSort }: { t: (key: string) => string; displayField: string, defaultSort:string }) => {
+  const currentLocale = useLocale()?.code ?? 'en';
+  const validSortOrder = defaultSort === 'asc' || defaultSort === 'desc' ? defaultSort : 'asc';
+
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(`${validSortOrder}`)
   const url = window.location.href
   let result = url.match(/\/collections\/([^?]+)/)
   const slug = result && result[1] ? result[1] : ''
@@ -63,26 +66,9 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
 
   const sort = `sort=${sortOrder === 'desc' ? '-' : ''}order_number`
 
-  const getCurrentLocale = async () => {
-    try {
-      const res = await fetch(`/api/payload-preferences/locale`);
-      if (!res.ok) throw new Error('Failed to fetch current locale');
-      const locale = await res.json();
-      return locale;
-    } catch (error) {
-      console.error("Error fetching current locale:", error);
-      return null;
-    }
-  };
-  
-  const initData = async () => {
-    const currentLocale = await getCurrentLocale();
-    if (!currentLocale) {
-      console.error("No current locale.");
-      return;
-    }
 
-    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLocale.value}`)
+  const initData = async () => {
+    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLocale}`)
       .then(res => res.json())
       .then(response => {
         // console.log("Raw API response:", response); // Check the actual API response
@@ -125,12 +111,6 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
   }
 
   const save = async () => {
-    const currentLocale = await getCurrentLocale();
-    if (!currentLocale) {
-      console.error("No current locale.");
-      return;
-    }
-    
     const modifiedDocsData = data.docs
       .filter(doc => typeof doc.edited_to === 'number' && doc.edited_to !== doc.order_number)
       .map(doc => ({
@@ -144,7 +124,7 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
 
     try {
       const updateRequests = modifiedDocsData.map(async doc => {
-        const req = await fetch(`/api/${slug}/${doc.id}?locale=${currentLocale.value}`, {
+        const req = await fetch(`/api/${slug}/${doc.id}?locale=${currentLocale}`, {
           method: 'PATCH',
           credentials: 'include',
           headers: {
@@ -171,14 +151,8 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
   }
 
   const loadMore = async () => {
-    const currentLocale = await getCurrentLocale();
-    if (!currentLocale) {
-      console.error("No current locale.");
-      return;
-    }
-
     setData(prev => ({ ...prev, isLoading: true }))
-    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLocale.value}&page=${data.loadedPages + 1}`)
+    return fetch(`/api/${slug}?${sort}&limit=${limit}&locale=${currentLocale}&page=${data.loadedPages + 1}`)
       .then(res => res.json())
       .then(({ docs, hasNextPage }: PaginatedDocs<Doc>) =>
         setData(prev => ({
@@ -266,12 +240,9 @@ const DragDrop = ({ currentLang, t, displayField }: { currentLang: string; t: (k
 
 
 // This component is used in the extendCollectionConfig function in the extendCollectionsConfig.ts file
-export const CollectionDocsOrder = ({displayField}: {displayField: string}) => {
-  const [currentLang, setCurrentLang] = useState('en')
-  useEffect(() => {
-    const lang = document.documentElement?.lang?.trim() || 'en'
-    setCurrentLang(lang)
-  }, [])
+export const CollectionDocsOrder = ({displayField, defaultSort}: {displayField: string, defaultSort:string}) => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language ?? 'en';
 
   const t = (key: string) => getTranslation(`collectionsDocsOrder.${key}`, currentLang)
 
@@ -280,7 +251,7 @@ export const CollectionDocsOrder = ({displayField}: {displayField: string}) => {
       <Dialog trigger={<button style={{ margin: 0, cursor: 'pointer' }}>
         {t('orderDocs')}
       </button>}>
-        <DragDrop currentLang={currentLang} t={t} displayField={displayField}/>
+        <DragDrop t={t} displayField={displayField} defaultSort={defaultSort}/>
         <ToastContainer />
       </Dialog>
     </div>
