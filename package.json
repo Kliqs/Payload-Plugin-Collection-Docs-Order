@@ -36,6 +36,8 @@
     "@payloadcms/ui": "^3.20.0",
     "@radix-ui/react-dialog": "^1.1.4",
     "add": "^2.0.6",
+    "balanced-match": "^1.0.0",
+    "brace-expansion": "^4.0.0",
     "clsx": "^2.1.1",
     "escape-html": "^1.0.3",
     "react": "^19.0.0",

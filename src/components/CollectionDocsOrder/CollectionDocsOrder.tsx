@@ -18,8 +18,8 @@ interface Doc extends Record<string, unknown> {
   edited_from?: number
 }
 
-const getTranslation = (key: string, currentLang: string = 'en') => {
-  const langData = translations?.[currentLang as keyof typeof translations] ?? translations?.['en'] ?? {}
+const getTranslation = (key: string, currentLang: string = 'de') => {
+  const langData = translations?.[currentLang as keyof typeof translations] ?? translations?.['de'] ?? {}
   const keys = key.split('.')
   let translation: any = langData
 
@@ -36,7 +36,7 @@ const getTranslation = (key: string, currentLang: string = 'en') => {
 
 //DragDrop component
 const DragDrop = ({ t, displayField, defaultSort }: { t: (key: string) => string; displayField: string, defaultSort:string }) => {
-  const currentLocale = useLocale()?.code ?? 'en';
+  const currentLocale = useLocale()?.code ?? 'de';
   const validSortOrder = defaultSort === 'asc' || defaultSort === 'desc' ? defaultSort : 'asc';
 
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(`${validSortOrder}`)
@@ -116,39 +116,36 @@ const DragDrop = ({ t, displayField, defaultSort }: { t: (key: string) => string
       .map(doc => ({
         id: doc.id,
         order_number: doc.edited_to,
-      }))
-      if (modifiedDocsData.length === 0) {
-        toast.info('No changes to save', { position: 'bottom-center' });
-        return;
-      }
-
-    try {
-      const updateRequests = modifiedDocsData.map(async doc => {
-        const req = await fetch(`/api/${slug}/${doc.id}?locale=${currentLocale}`, {
-          method: 'PATCH',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            order_number: doc.order_number,
-          }),
-        })
-
-        const resp = await req.json()
-        return resp
-      })
-
-      const results = await Promise.all(updateRequests)
-
-      setData(prev => ({ ...prev, isLoading: true }))
-      toast.success('success', { position: 'bottom-center' })
-      await initData()
-    } catch (err) {
-      console.log('Error updating documents:', err)
-      toast.error('error', { position: 'bottom-center' })
+      }));
+  
+    if (modifiedDocsData.length === 0) {
+      toast.info('No changes to save', { position: 'bottom-center' });
+      return;
     }
-  }
+  
+    try {
+      const response = await fetch(`/api/collection-docs-order/update-order-number/${slug}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(modifiedDocsData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      setData(prev => ({ ...prev, isLoading: true }));
+      toast.success('Success', { position: 'bottom-center' });
+      await initData();
+    } catch (err) {
+      console.error('Error updating documents:', err);
+      toast.error('Error updating documents', { position: 'bottom-center' });
+    }
+  };
+  
 
   const loadMore = async () => {
     setData(prev => ({ ...prev, isLoading: true }))
@@ -242,7 +239,7 @@ const DragDrop = ({ t, displayField, defaultSort }: { t: (key: string) => string
 // This component is used in the extendCollectionConfig function in the extendCollectionsConfig.ts file
 export const CollectionDocsOrder = ({displayField, defaultSort}: {displayField: string, defaultSort:string}) => {
   const { i18n } = useTranslation();
-  const currentLang = i18n.language ?? 'en';
+  const currentLang = i18n.language ?? 'de';
 
   const t = (key: string) => getTranslation(`collectionsDocsOrder.${key}`, currentLang)
 
