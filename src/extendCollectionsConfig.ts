@@ -30,8 +30,7 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
       ...collection.fields,
       {
         admin: {
-          hidden: false,
-          position: 'sidebar',
+          hidden: true,
         },
         index: true,
         name: 'order_number',
@@ -48,15 +47,15 @@ const extendCollectionConfig = (collection: CollectionConfig) => {
         ...(collection.hooks?.beforeValidate ?? []),
         generateOrderNumber, // Automatically set order_number before validation
       ],
-      beforeRead: [
-        ...(collection.hooks?.beforeRead ?? []),
-        async ({ doc }) => {
-          if (!doc.order_number) {
-            doc.order_number = doc.id; // Assign ID if order_number is null
-          }
-          return doc;
-        },
-      ],
+      // beforeRead: [
+      //   ...(collection.hooks?.beforeRead ?? []),
+      //   async ({ doc }) => {
+      //     if (!doc.order_number) {
+      //       doc.order_number = doc.id; // Assign ID if order_number is null
+      //     }
+      //     return doc;
+      //   },
+      // ],
     },
   } as CollectionConfig;
 };
