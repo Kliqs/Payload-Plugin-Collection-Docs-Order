@@ -12,6 +12,7 @@ export const translations = {
       desc: 'Descending',
       loaded: 'Loaded',
       sortOrder: 'Sort order',
+      parentPage: 'Parent Page'
     },
   },
   de: {
@@ -27,6 +28,7 @@ export const translations = {
       desc: 'Absteigend',
       loaded: 'Geladen',
       sortOrder: 'Sortierreihenfolge',
+      parentPage: 'Elternteil Seite'
     },
   }
 }
