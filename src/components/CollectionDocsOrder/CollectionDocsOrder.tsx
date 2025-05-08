@@ -16,6 +16,7 @@ interface Doc extends Record<string, unknown> {
   order_number: number
   edited_to?: number
   edited_from?: number
+  parent?: (number | null);
 }
 
 const getTranslation = (key: string, currentLang: string = 'de') => {
@@ -200,28 +201,43 @@ const DragDrop = ({ t, displayField, defaultSort }: { t: (key: string) => string
         {data.docs.map((doc, index) => (
           <DraggableSortableItem disabled={false} id={String(doc.id)} key={doc.id}>
             {props => {
-              return (
-                <div
-                  style={{ transform: props.transform }}
-                  ref={props.setNodeRef}
-                  className="order-item"
+          return (
+            <div
+              style={{ transform: props.transform }}
+              ref={props.setNodeRef}
+              className="order-item"
+            >
+              <div
+                {...props.attributes}
+                {...props.listeners}
+                role="button"
+                className="order-drag"
+              >
+                <DragHandleIcon />
+              </div>
+              <div className="order-item-content">
+                <a
+                  href={`${url}/admin/collections/${slug}/${doc.id}`}
+                  target="_blank"
+                  className="order-item-title"
                 >
-                  <div
-                    {...props.attributes}
-                    {...props.listeners}
-                    role="button"
-                    className="order-drag"
-                  >
-                    <DragHandleIcon />
-                  </div>
-                  <a href={`${url}/admin/collections/${slug}/${doc.id}`} target="_blank">
-                    {doc.order_number}
-                    {doc.edited_to && doc.edited_to !== doc.order_number && ` - ${doc.edited_to}`}
-                    {' - '}
-                    {(doc?.[displayField] as string) ?? doc?.slug ?? 'Undefined'}
-                  </a>
-                </div>
-              )
+                  {doc.order_number}
+                  {doc.edited_to && doc.edited_to !== doc.order_number && ` → ${doc.edited_to}`}
+                  {' - '}
+                  {(doc?.[displayField] as string) ?? doc?.slug ?? 'Undefined'}
+                </a>
+
+                {/* @ts-ignore */}
+                {doc?.parent?.pageName && (
+                  <span className="order-item-parent-inline">
+                    {t('parentPage')} {': '} 
+                    {/* @ts-ignore */} 
+                    {doc.parent.pageName}
+                  </span>
+                )}
+              </div>
+            </div>
+          )
             }}
           </DraggableSortableItem>
         ))}

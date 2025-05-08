@@ -78,4 +78,32 @@
     right: 0.5rem;
     top: 0.5rem;
   }
+
+  .order-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .order-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .order-item-title {
+    flex: 1;
+    text-decoration: underline;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .order-item-parent-inline {
+    flex-shrink: 0;
+    margin-left: 20px;
+    color: #aaa;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
   
