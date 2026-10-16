@@ -7,7 +7,6 @@ import type { PaginatedDocs } from 'payload'
 import React, { useEffect, useState } from 'react'
 import { Dialog } from '../Dialog'
 import './OrderDialog.css'
-import { ToastContainer } from '@payloadcms/ui/providers/ToastContainer'
 import { translations } from '../../translation'
 
 
@@ -265,7 +264,6 @@ export const CollectionDocsOrder = ({displayField, defaultSort}: {displayField: 
         {t('orderDocs')}
       </button>}>
         <DragDrop t={t} displayField={displayField} defaultSort={defaultSort}/>
-        <ToastContainer />
       </Dialog>
     </div>
   )
